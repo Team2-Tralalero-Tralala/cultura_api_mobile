@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ImageType {
+  GALLERY
+  COVER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  firstname String
+  lastname  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings BookingHistory[]
+}
+
+model Package {
+  id               Int       @id @default(autoincrement())
+  name             String
+  description      String?
+  price            Float
+  capacity         Int
+  suggestion       String?
+  bookingStartDate DateTime?
+  bookingEndDate   DateTime?
+  address          String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  images           PackageImage[]
+  tags             PackageTag[]
+  facilities       PackageFacility[]
+  homestayPackages HomestayPackage[]
+  bookings         BookingHistory[]
+}
+
+model PackageImage {
+  id        Int       @id @default(autoincrement())
+  type      ImageType
+  filepath  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
+}
+
+model PackageTag {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
+  tagId     Int
+  tag       Tag     @relation(fields: [tagId], references: [id])
+
+  @@unique([packageId, tagId])
+}
+
+model PackageFacility {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
+}
+
+// ==================== Homestay ====================
+
+model Homestay {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        String
+  address     String?
+  capacity    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  images           HomestayImage[]
+  facilities       HomestayFacility[]
+  homestayPackages HomestayPackage[]
+}
+
+model HomestayImage {
+  id        Int       @id @default(autoincrement())
+  type      ImageType
+  filepath  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  homestayId Int
+  homestay   Homestay @relation(fields: [homestayId], references: [id])
+}
+
+model HomestayFacility {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  homestayId Int
+  homestay   Homestay @relation(fields: [homestayId], references: [id])
+}
+
+model HomestayPackage {
+  id          Int      @id @default(autoincrement())
+  participant Int
+  checkIn     DateTime
+  checkOut    DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  homestayId Int
+  homestay   Homestay @relation(fields: [homestayId], references: [id])
+  packageId  Int
+  package    Package  @relation(fields: [packageId], references: [id])
+}
+
+model BookingHistory {
+  id          Int      @id @default(autoincrement())
+  participant Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packages PackageTag[]
+}

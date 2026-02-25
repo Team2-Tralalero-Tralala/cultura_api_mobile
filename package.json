@@ -1,0 +1,37 @@
+{
+  "name": "cultura_api_mobile",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "nodemon --exec tsx src/index.ts",
+    "seed": "prisma db seed"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemon": "^3.1.14",
+    "npm": "^11.10.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.3.0",
+    "prisma": "^7.4.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
