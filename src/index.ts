@@ -23,10 +23,10 @@ app.post("/login", async (req, res) => {
     where: { username },
   });
 
-  if (!user) return res.sendStatus(401);
+  if (!user) return res.json({ message: "ไม่พบบัญชี" });
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.sendStatus(401);
+  if (!valid) return res.json({ message: "รหัสผ่านไม่ถูกต้อง" });
 
   const token = jwt.sign(
     { userId: user.id, username: user.username },
@@ -54,6 +54,7 @@ app.get(
     const packages = await prisma.package.findUnique({
       where: { id: Number(req.params.packageId) },
     });
+    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
     res.json(packages);
   },
 );
@@ -91,6 +92,7 @@ app.get(
         },
       },
     });
+    if (!bookingPackages) return res.json({ message: "ไม่พบประวัติการจอง" });
     res.json(bookingPackages);
   },
 );
@@ -127,6 +129,7 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         },
       },
     });
+    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
     res.json(packages);
   } else if (filter === "newest") {
     const packages = await prisma.package.findMany({
@@ -134,6 +137,7 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         createdAt: "desc",
       },
     });
+    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
     res.json(packages);
   }
 });
@@ -146,6 +150,7 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
       },
     },
   });
+  if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
   res.json(packages);
 });
 app.get("/me", authenticateToken, (req: AuthRequest, res) => {
