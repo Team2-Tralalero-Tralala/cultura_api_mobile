@@ -23,10 +23,10 @@ app.post("/login", async (req, res) => {
     where: { username },
   });
 
-  if (!user) return res.json({ message: "ไม่พบบัญชี" });
+  if (!user) return res.status(404).json({ message: "ไม่พบบัญชี" });
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.json({ message: "รหัสผ่านไม่ถูกต้อง" });
+  if (!valid) return res.status(401).json({ message: "รหัสผ่านไม่ถูกต้อง" });
 
   const token = jwt.sign(
     { userId: user.id, username: user.username },
@@ -39,14 +39,8 @@ app.post("/login", async (req, res) => {
     sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
-  return res.json({ message: "Login successful" });
+  return res.status(200).json({ message: "Login successful" });
 });
-
-app.get("/users", authenticateToken, async (req: AuthRequest, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
 app.get(
   "/package/:packageId",
   authenticateToken,
@@ -54,8 +48,8 @@ app.get(
     const packages = await prisma.package.findUnique({
       where: { id: Number(req.params.packageId) },
     });
-    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
-    res.json(packages);
+    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
+    res.status(200).json(packages);
   },
 );
 
@@ -92,8 +86,9 @@ app.get(
         },
       },
     });
-    if (!bookingPackages) return res.json({ message: "ไม่พบประวัติการจอง" });
-    res.json(bookingPackages);
+    if (!bookingPackages)
+      return res.status(404).json({ message: "ไม่พบประวัติการจอง" });
+    res.status(200).json(bookingPackages);
   },
 );
 
@@ -129,16 +124,16 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         },
       },
     });
-    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
-    res.json(packages);
+    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
+    res.status(200).json(packages);
   } else if (filter === "newest") {
     const packages = await prisma.package.findMany({
       orderBy: {
         createdAt: "desc",
       },
     });
-    if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
-    res.json(packages);
+    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
+    res.status(200).json(packages);
   }
 });
 app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
@@ -150,14 +145,14 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
       },
     },
   });
-  if (!packages) return res.json({ message: "ไม่พบแพ็กเกจ" });
-  res.json(packages);
+  if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
+  res.status(200).json(packages);
 });
 app.get("/me", authenticateToken, (req: AuthRequest, res) => {
-  res.json({ user: req.user });
+  res.status(200).json({ user: req.user });
 });
 app.get("/", async (req, res) => {
-  res.json({ message: "Hello World" });
+  res.status(200).json({ message: "Hello World" });
 });
 app.listen(process.env.PORT || 8000, () => {
   console.log("Server running on http://localhost:" + process.env.PORT);
