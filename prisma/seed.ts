@@ -1,12 +1,6 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from "../generated/prisma/client";
-
-const connectionString = `${process.env.DATABASE_URL}`;
-
-const adapter = new PrismaBetterSqlite3({ url: connectionString });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "../src/libs/prisma";
 
 async function main() {
   console.log("🌱 Seeding database...");
@@ -148,7 +142,7 @@ async function main() {
 
   // ==================== Package Images ====================
   const packageImages = await Promise.all(
-    packages.flatMap((pkg) => [
+    packages.flatMap((pkg: any) => [
       prisma.packageImage.create({
         data: {
           type: "COVER",
@@ -294,7 +288,7 @@ async function main() {
 
   // ==================== Homestay Images ====================
   const homestayImages = await Promise.all(
-    homestays.flatMap((hs) => [
+    homestays.flatMap((hs: any) => [
       prisma.homestayImage.create({
         data: {
           type: "COVER",
