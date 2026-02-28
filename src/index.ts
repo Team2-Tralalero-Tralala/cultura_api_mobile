@@ -3,14 +3,15 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { prisma } from "./libs/prisma";
-import { authenticateToken, AuthRequest } from "./libs/auth-middleware";
+import { prisma } from "./libs/prisma.js";
+import { authenticateToken, AuthRequest } from "./libs/auth-middleware.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET as string;
-
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
@@ -38,7 +39,7 @@ app.post("/login", async (req, res) => {
     sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
-  return res.json({ message: "Login successful", token });
+  return res.json({ message: "Login successful" });
 });
 
 app.get("/users", authenticateToken, async (req: AuthRequest, res) => {
@@ -146,6 +147,9 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
     },
   });
   res.json(packages);
+});
+app.get("/me", authenticateToken, (req: AuthRequest, res) => {
+  res.json({ user: req.user });
 });
 app.get("/", async (req, res) => {
   res.json({ message: "Hello World" });
