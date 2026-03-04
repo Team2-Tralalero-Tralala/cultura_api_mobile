@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { prisma } from "./libs/prisma.js";
 import { authenticateToken, AuthRequest } from "./libs/auth-middleware.js";
+import { apiResponse } from "./libs/response.js";
 import cors from "cors";
 
 dotenv.config();
@@ -23,10 +24,10 @@ app.post("/login", async (req, res) => {
     where: { username },
   });
 
-  if (!user) return res.status(404).json({ message: "ไม่พบบัญชี" });
+  if (!user) return apiResponse(res, 404, {}, "ไม่พบบัญชี");
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(401).json({ message: "รหัสผ่านไม่ถูกต้อง" });
+  if (!valid) return apiResponse(res, 401, {}, "รหัสผ่านไม่ถูกต้อง");
 
   const token = jwt.sign(
     { userId: user.id, username: user.username },
@@ -34,12 +35,7 @@ app.post("/login", async (req, res) => {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    sameSite: "strict",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-  });
-  return res.status(200).json({ message: "Login successful" });
+  return apiResponse(res, 200, { token }, "Login successful");
 });
 app.get(
   "/package/:packageId",
@@ -48,17 +44,17 @@ app.get(
     const packages = await prisma.package.findUnique({
       where: { id: Number(req.params.packageId) },
     });
-    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
-    res.status(200).json(packages);
+    if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
+    return apiResponse(res, 200, packages);
   },
 );
 
 app.get(
-  "/booking-history/:userId",
+  "/booking-history/own",
   authenticateToken,
   async (req: AuthRequest, res) => {
     const bookingPackages = await prisma.bookingHistory.findMany({
-      where: { userId: Number(req.params.userId) },
+      where: { userId: Number(req.user?.userId) },
       select: {
         package: {
           select: {
@@ -87,8 +83,8 @@ app.get(
       },
     });
     if (!bookingPackages)
-      return res.status(404).json({ message: "ไม่พบประวัติการจอง" });
-    res.status(200).json(bookingPackages);
+      return apiResponse(res, 404, {}, "ไม่พบประวัติการจอง");
+    return apiResponse(res, 200, bookingPackages);
   },
 );
 
@@ -124,16 +120,38 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         },
       },
     });
-    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
-    res.status(200).json(packages);
+    if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
+    return apiResponse(res, 200, packages);
   } else if (filter === "newest") {
     const packages = await prisma.package.findMany({
       orderBy: {
         createdAt: "desc",
       },
+      select: {
+        name: true,
+        address: true,
+        bookingStartDate: true,
+        bookingEndDate: true,
+        tags: {
+          select: {
+            tag: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        price: true,
+        images: {
+          select: {
+            type: true,
+            filepath: true,
+          },
+        },
+      },
     });
-    if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
-    res.status(200).json(packages);
+    if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
+    return apiResponse(res, 200, packages);
   }
 });
 app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
@@ -145,14 +163,14 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
       },
     },
   });
-  if (!packages) return res.status(404).json({ message: "ไม่พบแพ็กเกจ" });
-  res.status(200).json(packages);
+  if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
+  return apiResponse(res, 200, packages);
 });
 app.get("/me", authenticateToken, (req: AuthRequest, res) => {
-  res.status(200).json({ user: req.user });
+  return apiResponse(res, 200, { user: req.user });
 });
 app.get("/", async (req, res) => {
-  res.status(200).json({ message: "Hello World" });
+  return apiResponse(res, 200, {}, "Hello World");
 });
 app.listen(process.env.PORT || 8000, () => {
   console.log("Server running on http://localhost:" + process.env.PORT);
