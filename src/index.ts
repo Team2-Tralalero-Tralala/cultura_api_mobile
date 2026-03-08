@@ -169,6 +169,72 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
 app.get("/me", authenticateToken, (req: AuthRequest, res) => {
   return apiResponse(res, 200, { user: req.user });
 });
+app.get("/home", authenticateToken, async (req: AuthRequest, res) => {
+  const newPackages = await prisma.package.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      name: true,
+      address: true,
+      bookingStartDate: true,
+      bookingEndDate: true,
+      tags: {
+        select: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      price: true,
+      images: {
+        select: {
+          type: true,
+          filepath: true,
+        },
+      },
+    },
+  });
+  const popularPackages = await prisma.package.findMany({
+    orderBy: {
+      bookings: {
+        _count: "desc",
+      },
+    },
+    select: {
+      name: true,
+      address: true,
+      bookingStartDate: true,
+      bookingEndDate: true,
+      tags: {
+        select: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      price: true,
+      images: {
+        select: {
+          type: true,
+          filepath: true,
+        },
+      },
+    },
+  });
+  const tag = await prisma.tag.findMany({
+    select: {
+      name: true,
+    },
+  });
+  if (!newPackages && !popularPackages)
+    return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
+  return apiResponse(res, 200, { newPackages, popularPackages, tag });
+});
 app.get("/", async (req, res) => {
   return apiResponse(res, 200, {}, "Hello World");
 });
