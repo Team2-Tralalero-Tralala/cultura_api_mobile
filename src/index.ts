@@ -43,6 +43,54 @@ app.get(
   async (req: AuthRequest, res) => {
     const packages = await prisma.package.findUnique({
       where: { id: Number(req.params.packageId) },
+      select: {
+        name: true,
+        description: true,
+        address: true,
+        bookingStartDate: true,
+        bookingEndDate: true,
+        tags: {
+          select: {
+            tag: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        price: true,
+        suggestion: true,
+        capacity: true,
+        facilities: {
+          select: {
+            name: true,
+          },
+        },
+        homestayPackages: {
+          select: {
+            homestay: {
+              select: {
+                name: true,
+                address: true,
+                description: true,
+                type: true,
+                capacity: true,
+                facilities: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        images: {
+          select: {
+            type: true,
+            filepath: true,
+          },
+        },
+      },
     });
     if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
     return apiResponse(res, 200, packages);
