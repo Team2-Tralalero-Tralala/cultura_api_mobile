@@ -146,21 +146,21 @@ async function main() {
       prisma.packageImage.create({
         data: {
           type: "COVER",
-          filepath: `/uploads/packages/${pkg.id}/cover.jpg`,
+          filepath: `/uploads/packages/cover.jpg`,
           packageId: pkg.id,
         },
       }),
       prisma.packageImage.create({
         data: {
           type: "GALLERY",
-          filepath: `/uploads/packages/${pkg.id}/gallery_1.jpg`,
+          filepath: `/uploads/packages/gallery_1.jpg`,
           packageId: pkg.id,
         },
       }),
       prisma.packageImage.create({
         data: {
           type: "GALLERY",
-          filepath: `/uploads/packages/${pkg.id}/gallery_2.jpg`,
+          filepath: `/uploads/packages/gallery_2.jpg`,
           packageId: pkg.id,
         },
       }),
@@ -292,14 +292,14 @@ async function main() {
       prisma.homestayImage.create({
         data: {
           type: "COVER",
-          filepath: `/uploads/homestays/${hs.id}/cover.jpg`,
+          filepath: `/uploads/homestays/cover.jpg`,
           homestayId: hs.id,
         },
       }),
       prisma.homestayImage.create({
         data: {
           type: "GALLERY",
-          filepath: `/uploads/homestays/${hs.id}/gallery_1.jpg`,
+          filepath: `/uploads/homestays/gallery_1.jpg`,
           homestayId: hs.id,
         },
       }),
