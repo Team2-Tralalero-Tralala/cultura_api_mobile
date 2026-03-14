@@ -210,6 +210,14 @@ app.get("/search", authenticateToken, async (req: AuthRequest, res) => {
         contains: keyword as string,
       },
     },
+    include: {
+      images: {
+        select: {
+          type: true,
+          filepath: true,
+        },
+      },
+    },
   });
   if (!packages) return apiResponse(res, 404, {}, "ไม่พบแพ็กเกจ");
   return apiResponse(res, 200, packages);
