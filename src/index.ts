@@ -44,6 +44,7 @@ app.get(
     const packages = await prisma.package.findUnique({
       where: { id: Number(req.params.packageId) },
       select: {
+        id: true,
         name: true,
         description: true,
         address: true,
@@ -106,6 +107,7 @@ app.get(
       select: {
         package: {
           select: {
+            id: true,
             name: true,
             address: true,
             bookingStartDate: true,
@@ -146,6 +148,7 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         },
       },
       select: {
+        id: true,
         name: true,
         address: true,
         bookingStartDate: true,
@@ -176,6 +179,7 @@ app.get("/packages", authenticateToken, async (req: AuthRequest, res) => {
         createdAt: "desc",
       },
       select: {
+        id: true,
         name: true,
         address: true,
         bookingStartDate: true,
@@ -231,6 +235,7 @@ app.get("/home", authenticateToken, async (req: AuthRequest, res) => {
       createdAt: "desc",
     },
     select: {
+      id: true,
       name: true,
       address: true,
       bookingStartDate: true,
@@ -260,6 +265,7 @@ app.get("/home", authenticateToken, async (req: AuthRequest, res) => {
       },
     },
     select: {
+      id: true,
       name: true,
       address: true,
       bookingStartDate: true,
@@ -284,6 +290,7 @@ app.get("/home", authenticateToken, async (req: AuthRequest, res) => {
   });
   const tag = await prisma.tag.findMany({
     select: {
+      id: true,
       name: true,
     },
   });
